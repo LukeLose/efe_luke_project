@@ -79,29 +79,31 @@ class GreedyAgent(GameAgent):
         """
         # Create new GoSearchProblem with provided heuristic
         search_problem = self.search_problem
+        end_time = time.perf_counter() + time_limit - 0.00005
 
         # Player 0 is maximizing
         if game_state.player_to_move() == MAXIMIZER:
             best_value = -float('inf')
         else:
             best_value = float('inf')
-        best_action = None
+        best_action = 25
 
         # Get Available actions
         actions = search_problem.get_available_actions(game_state)
 
         # Compare heuristic of every reachable next state
         for action in actions:
-            new_state = search_problem.transition(game_state, action)
-            value = search_problem.heuristic(new_state, new_state.player_to_move())
-            if game_state.player_to_move() == MAXIMIZER:
-                if value > best_value:
-                    best_value = value
-                    best_action = action
-            else:
-                if value < best_value:
-                    best_value = value
-                    best_action = action
+            if time.perf_counter() <= end_time:
+                new_state = search_problem.transition(game_state, action)
+                value = search_problem.heuristic(new_state, new_state.player_to_move())
+                if game_state.player_to_move() == MAXIMIZER:
+                    if value > best_value:
+                        best_value = value
+                        best_action = action
+                else:
+                    if value < best_value:
+                        best_value = value
+                        best_action = action
 
         # Return best available action
         return best_action
@@ -691,19 +693,8 @@ def get_features(game_state: GoState):
     #Changed to 54
     player_to_go_possible_moves = len(game_state.legal_actions())
     features.append(player_to_go_possible_moves)
-    # features.append(player_to_go_possible_moves)
-    # features.append(player_to_go_possible_moves)
-    # features.append(player_to_go_possible_moves)
-    # features.append(player_to_go_possible_moves)
-    # features.append(player_to_go_possible_moves)
 
     return features
-    # features = []
-    # board = game_state.get_board()
-    # np_board = np.array(board)
-    # flat_np_board = np_board.flatten()
-    # features.extend(flat_np_board)
-    #return features
 
 class PolicyAgent(GameAgent):
     def __init__(self, search_problem, model_path, board_size=5):
@@ -770,7 +761,118 @@ class PolicyAgent(GameAgent):
 
 
 
+class final_agent_5x5(GameAgent):
+    def __init__(self, c=np.sqrt(2)):
+        """
+        Args: 
+            c (float): exploration constant of UCT algorithm
+        """
+        super().__init__()
+        self.c = c
+        self.model_path = "value_model.pt"
+        self.feature_size = 54
+        self.model = load_model(self.model_path, ValueNetwork(self.feature_size))
+        self.learned_heuristic = GoProblemLearnedHeuristic(self.model)
+        #self.move_number = 0 may use this for counting when the midgame starts.
 
+        # Initialize Search problem
+        self.search_problem = GoProblem()
+
+    def get_move(self, game_state: GoState, time_limit: float) -> Action:
+        # TODO: Implement MCTS
+        node = MCTSNode(game_state)
+        end_time = time.perf_counter() + time_limit - 0.5
+
+        while time.perf_counter() < end_time:
+            leaf = self.selection(node)
+            children = self.expand(leaf)
+            results = self.simulate(children)
+            self.backpropagate(results, children)
+        
+        #Find the best child now
+        best_child = None
+        most_visits = -1
+        for child in node.children:
+            if child.visits > most_visits:
+                most_visits = child.visits
+                best_child = child
+        return best_child.action
+
+
+
+    def utc_policy_calc(self, node: MCTSNode) -> float:
+        #Unvisited nodes get selected immediately
+        if node.visits == 0:
+            return float('inf')
+        #Calc values of both UTC sections
+        value_estimate = node.value / node.visits
+        exploration_term = self.c * np.sqrt((np.log(node.parent.visits)) / node.visits)
+        return value_estimate + exploration_term
+    
+
+    
+    def selection(self, node: MCTSNode) -> MCTSNode:
+        best_val = float('-inf')
+        if not node.children:
+            return node
+        best_child = None
+        for child in node.children:
+            uct_value = self.utc_policy_calc(child)
+            if uct_value > best_val:
+                best_val = uct_value
+                best_child = child
+        return self.selection(best_child)
+    
+
+    def expand(self, node: MCTSNode):
+        children = []
+        curr_state = node.state
+        actions = self.search_problem.get_available_actions(curr_state)
+        for action in actions:
+            child_state = self.search_problem.transition(curr_state, action)
+            child_node = MCTSNode(child_state, node, None, action)
+            children.append(child_node)
+            #Not sure if i need this or not
+            node.children.append(child_node)
+        return children
+
+
+    def simulate(self, children: list[MCTSNode]):
+        #This is what we need to fix, by making it not random choices but good choices!
+        results = []
+        search_problem = self.search_problem
+        greedy_learn = GreedyAgent(self.learned_heuristic)
+        #greedy = GreedyAgent()
+        #print("hello")
+        for child in children:
+            child_state = child.state
+            while not search_problem.is_terminal_state(child_state):
+                #action = greedy.get_move(child_state, 0.0001)
+                action = greedy_learn.get_move(child_state, 0.0001)
+                #actions = search_problem.get_available_actions(child_state)
+                #action = np.random.choice(actions)
+                child_state = search_problem.transition(child_state, action)
+            results.append(search_problem.evaluate_terminal(child_state))
+        #print("hello_end")
+        return results
+    
+    
+    def backpropagate(self, results: list[float], children: list[MCTSNode]):
+        for child, result in zip(children, results):
+            curr_node = child
+            while curr_node is not None:
+                player_to_move = curr_node.state.player_to_move()
+                curr_node.visits += 1
+                if result == -1 and player_to_move == 0:
+                    curr_node.value = curr_node.value + 1
+                elif result == 1 and player_to_move == 1:
+                    curr_node.value = curr_node.value + 1
+
+                curr_node = curr_node.parent
+
+
+    def __str__(self):
+        return "MCTS"
 
 
 
@@ -810,7 +912,8 @@ def create_value_agent_from_model(model_string: str):
 
 def get_final_agent_5x5():
     """Called to construct agent for final submission for 5x5 board"""
-    learned_agent = create_value_agent_from_model("ab3")
+    learned_agent = final_agent_5x5()
+    #learned_agent = create_value_agent_from_model("ab4")
     return learned_agent
 
 def get_final_agent_9x9():
@@ -838,11 +941,12 @@ def get_final_agent_9x9():
 def main():
     from game_runner import run_many
     #agent1 = GreedyAgent()
-    agent2 = GreedyAgent()
-    agent1 = get_final_agent_5x5()
-
+    #agent2 = GreedyAgent()
+    agent2 = MCTSAgent()
+    #agent1 = get_final_agent_5x5()
+    agent1 = create_value_agent_from_model("ab4")
     # Play 10 games
-    run_many(agent1, agent2, 10)
+    run_many(agent1, agent2, 6)
 
 
 if __name__ == "__main__":
