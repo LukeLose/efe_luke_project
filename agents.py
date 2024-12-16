@@ -771,7 +771,7 @@ class final_agent_5x5(GameAgent):
         self.c = c
         self.c_initial = c
         self.decay_rate = 0.001
-        self.c_min = 1
+        self.c_min = 1.3
         self.model_path = "value_model.pt"
         self.feature_size = 54
         self.model = load_model(self.model_path, ValueNetwork(self.feature_size))
@@ -956,14 +956,8 @@ def get_final_agent_9x9():
 
 def main():
     from game_runner import run_many
-    #agent1 = GreedyAgent()
-    agent2 = GreedyAgent()
-    #agent2 = MCTSAgent()
-    #agent1 = get_final_agent_5x5()
-    #agent2 = MCTSAgent()
+    agent2 = MCTSAgent()
     agent1 = final_agent_5x5()
-    #agent1 = create_value_agent_from_model("ab4")
-    # Play 10 games
     run_many(agent1, agent2, 4)
 
 
