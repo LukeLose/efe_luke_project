@@ -769,6 +769,9 @@ class final_agent_5x5(GameAgent):
         """
         super().__init__()
         self.c = c
+        self.c_initial = c
+        self.decay_rate = 0.01
+        self.c_min = 0.5
         self.model_path = "value_model.pt"
         self.feature_size = 54
         self.model = load_model(self.model_path, ValueNetwork(self.feature_size))
@@ -782,12 +785,15 @@ class final_agent_5x5(GameAgent):
         # TODO: Implement MCTS
         node = MCTSNode(game_state)
         end_time = time.perf_counter() + time_limit - 0.5
+        iteration = 0 
 
         while time.perf_counter() < end_time:
+            iteration += 1 
             leaf = self.selection(node)
             children = self.expand(leaf)
             results = self.simulate(children)
             self.backpropagate(results, children)
+            self.c = max(self.c_initial - self.decay_rate * iteration, self.c_min)
         
         #Find the best child now
         best_child = None
