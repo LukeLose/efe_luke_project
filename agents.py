@@ -783,9 +783,15 @@ class final_agent_5x5(GameAgent):
 
     def get_move(self, game_state: GoState, time_limit: float) -> Action:
         # TODO: Implement MCTS
-        if (len(game_state.get_pieces_coordinates()) >= 18):
+
+        #Get piece amount to guide what model we want to use
+        pieces_1 = len(game_state.get_pieces_coordinates(0))
+        pieces_2 = len(game_state.get_pieces_coordinates(1))
+        curr_piece_num = pieces_1 + pieces_2
+
+        if (curr_piece_num >= 18):
             ab_agent = AlphaBetaAgent(4, self.learned_heuristic)
-            action = ab_agent.get_move(game_state)
+            action = ab_agent.get_move(game_state, 1)
             return action
         node = MCTSNode(game_state)
         end_time = time.perf_counter() + time_limit - 0.5
@@ -958,7 +964,7 @@ def main():
     agent1 = final_agent_5x5()
     #agent1 = create_value_agent_from_model("ab4")
     # Play 10 games
-    run_many(agent1, agent2, 6)
+    run_many(agent1, agent2, 4)
 
 
 if __name__ == "__main__":
