@@ -792,6 +792,7 @@ class final_agent_5x5(GameAgent):
         if (curr_piece_num >= 18):
             ab_agent = AlphaBetaAgent(4, self.learned_heuristic)
             action = ab_agent.get_move(game_state, 1)
+            print("using alpha beta")
             return action
         node = MCTSNode(game_state)
         end_time = time.perf_counter() + time_limit - 0.5
