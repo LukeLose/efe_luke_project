@@ -951,7 +951,8 @@ def main():
     #agent2 = MCTSAgent()
     #agent1 = get_final_agent_5x5()
     agent2 = GreedyAgent()
-    agent1 = create_value_agent_from_model("ab4")
+    agent1 = final_agent_5x5()
+    #agent1 = create_value_agent_from_model("ab4")
     # Play 10 games
     run_many(agent1, agent2, 6)
 
