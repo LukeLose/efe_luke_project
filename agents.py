@@ -770,8 +770,8 @@ class final_agent_5x5(GameAgent):
         super().__init__()
         self.c = c
         self.c_initial = c
-        self.decay_rate = 0.01
-        self.c_min = 0.5
+        self.decay_rate = 0.001
+        self.c_min = 1
         self.model_path = "value_model.pt"
         self.feature_size = 54
         self.model = load_model(self.model_path, ValueNetwork(self.feature_size))
@@ -878,7 +878,7 @@ class final_agent_5x5(GameAgent):
 
 
     def __str__(self):
-        return "MCTS"
+        return "Efe_Luke_SUPERBOT"
 
 
 
@@ -947,10 +947,10 @@ def get_final_agent_9x9():
 def main():
     from game_runner import run_many
     #agent1 = GreedyAgent()
-    #agent2 = GreedyAgent()
+    agent2 = GreedyAgent()
     #agent2 = MCTSAgent()
     #agent1 = get_final_agent_5x5()
-    agent2 = GreedyAgent()
+    #agent2 = MCTSAgent()
     agent1 = final_agent_5x5()
     #agent1 = create_value_agent_from_model("ab4")
     # Play 10 games
