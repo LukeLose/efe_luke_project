@@ -790,6 +790,10 @@ class final_agent_5x5(GameAgent):
         pieces_2 = len(game_state.get_pieces_coordinates(1))
         curr_piece_num = pieces_1 + pieces_2
 
+
+        if (curr_piece_num <= 4):
+            
+
         if (curr_piece_num <= 20 and curr_piece_num >= 15):
             intermediate = max(time_limit * 0.3, 1)
             time_per_move = min(intermediate, 3)
@@ -893,10 +897,14 @@ class final_agent_5x5(GameAgent):
             while curr_node is not None:
                 player_to_move = curr_node.state.player_to_move()
                 curr_node.visits += 1
-                if result == -1 and player_to_move == 0:
-                    curr_node.value = curr_node.value + 1
-                elif result == 1 and player_to_move == 1:
-                    curr_node.value = curr_node.value + 1
+                #if result == -1 and player_to_move == 0:
+                #    curr_node.value = curr_node.value + 1
+                if result < 0 and player_to_move == 0:
+                    curr_node.value = curr_node.value + abs(result)
+                elif result < 0 and player_to_move == 1:
+                    curr_node.value = curr_node.value + abs(result)
+                # elif result == 1 and player_to_move == 1:
+                #     curr_node.value = curr_node.value + 1
 
                 curr_node = curr_node.parent
 
