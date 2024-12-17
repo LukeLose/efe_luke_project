@@ -5,7 +5,7 @@ import random
 from abc import ABC, abstractmethod
 import numpy as np
 import time
-import matplotlib as plt
+import matplotlib.pyplot as plt
 #from game_runner import run_many
 import pickle
 import torch
@@ -791,8 +791,23 @@ class final_agent_5x5(GameAgent):
         pieces_2 = len(game_state.get_pieces_coordinates(1))
         curr_piece_num = pieces_1 + pieces_2
 
-
-        if (curr_piece_num <= 4):
+        #This hard codes the first two moves of the game, and it
+        #priortizes taking control of the center of the board
+        if (curr_piece_num <= 3):
+            possible_actions = game_state.legal_actions()
+            if (curr_piece_num <= 1):
+                if 12 in possible_actions:
+                    return 12
+                elif 11 in possible_actions:
+                    return 11
+            if 12 in possible_actions:
+                return 12
+            elif 11 in possible_actions:
+                return 11
+            elif 17 in possible_actions:
+                return 17
+            elif 7 in possible_actions:
+                return 7
             
 
         if (curr_piece_num <= 20 and curr_piece_num >= 15):
@@ -806,7 +821,7 @@ class final_agent_5x5(GameAgent):
         if (curr_piece_num >= 18):
             ids_agent = IterativeDeepeningAgent(1, self.learned_heuristic)
             action = ids_agent.get_move(game_state, 1)
-            print("using IDS")
+            #print("using IDS")
             return action
         node = MCTSNode(game_state)
         end_time = time.perf_counter() + time_per_move - 0.05
@@ -979,43 +994,43 @@ def get_final_agent_9x9():
 
 def main():
     from game_runner import run_many
-    agent2 = GreedyAgent()
+    agent2 = RandomAgent()
     final_agent = final_agent_5x5()
-    #run_many(agent1, agent2, 4)
+    run_many(final_agent, agent2, 4)
 
-    opponent_agents = [
-        RandomAgent(),
-        GreedyAgent(),
-        MinimaxAgent(),
-        MCTSAgent(),
-        AlphaBetaAgent(),
-        IterativeDeepeningAgent(),
-    #MinimaxAgent(),
-    #MCTSAgent(),   
-    # Add more agents here to test
-    ]
+    # opponent_agents = [
+    #     RandomAgent(),
+    #     GreedyAgent(),
+    #     MinimaxAgent(),
+    #     MCTSAgent(),
+    #     AlphaBetaAgent(),
+    #     IterativeDeepeningAgent(),
+    # #MinimaxAgent(),
+    # #MCTSAgent(),   
+    # # Add more agents here to test
+    # ]
 
-    win_rates = []
-    num_games = 10
-    for opponent in opponent_agents:
-        result = run_many(final_agent, opponent, num_games=num_games)
-        score = result[0]
-        wins = (score + num_games) / 2
-        true_win_rate = wins / num_games
-        win_rates.append(true_win_rate)
+    # win_rates = []
+    # num_games = 10
+    # for opponent in opponent_agents:
+    #     result = run_many(final_agent, opponent, num_games=num_games)
+    #     score = result[0]
+    #     wins = (score + num_games) / 2
+    #     true_win_rate = wins / num_games
+    #     win_rates.append(true_win_rate)
     
-    opponent_names = [str(opponent) for opponent in opponent_agents]
+    # opponent_names = [str(opponent) for opponent in opponent_agents]
 
-    plt.figure(figsize=(10,6))
-    plt.bar(opponent_names, win_rates, color='skyblue', edgecolor='black')
+    # plt.figure(figsize=(10,6))
+    # plt.bar(opponent_names, win_rates, color='skyblue', edgecolor='black')
 
-    plt.xlabel("Opponent Agents")
-    plt.ylabel("Win Rate (%)")
-    plt.title("Performance of Policy Network Against Various Opponents")
-    plt.xticks(rotation=45, ha='right')
+    # plt.xlabel("Opponent Agents")
+    # plt.ylabel("Win Rate (%)")
+    # plt.title("Performance of Policy Network Against Various Opponents")
+    # plt.xticks(rotation=45, ha='right')
 
-    plt.tight_layout()
-    plt.show()
+    # plt.tight_layout()
+    # plt.show()
 
 
 if __name__ == "__main__":
