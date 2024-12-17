@@ -859,16 +859,20 @@ class final_agent_5x5(GameAgent):
         results = []
         search_problem = self.search_problem
         greedy_learn = GreedyAgent(self.learned_heuristic)
-        #greedy = GreedyAgent()
-        #print("hello")
         for child in children:
             child_state = child.state
+            move_counter = 0
+            player_to_move = child_state.player_to_move()
             while not search_problem.is_terminal_state(child_state):
-                #action = greedy.get_move(child_state, 0.0001)
+                if move_counter > 50:
+                    results.append(self.learned_heuristic.heuristic(child_state, player_to_move))
+                    #print("simulation too long, we used the heuristic")
+                    break
                 action = greedy_learn.get_move(child_state, 0.0001)
-                #actions = search_problem.get_available_actions(child_state)
-                #action = np.random.choice(actions)
                 child_state = search_problem.transition(child_state, action)
+                player_to_move = child_state.player_to_move()
+                move_counter += 1
+            #print("normal greedy simulate: move count of " + str(move_counter))
             results.append(search_problem.evaluate_terminal(child_state))
         #print("hello_end")
         return results
@@ -957,7 +961,7 @@ def get_final_agent_9x9():
 
 def main():
     from game_runner import run_many
-    agent2 = MCTSAgent()
+    agent2 = GreedyAgent()
     agent1 = final_agent_5x5()
     run_many(agent1, agent2, 4)
 
