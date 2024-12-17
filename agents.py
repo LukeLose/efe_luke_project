@@ -780,6 +780,7 @@ class final_agent_5x5(GameAgent):
 
         # Initialize Search problem
         self.search_problem = GoProblem()
+        self.long_move_count = 0
 
     def get_move(self, game_state: GoState, time_limit: float) -> Action:
         # TODO: Implement MCTS
@@ -789,10 +790,16 @@ class final_agent_5x5(GameAgent):
         pieces_2 = len(game_state.get_pieces_coordinates(1))
         curr_piece_num = pieces_1 + pieces_2
 
+        if (curr_piece_num <= 20 and curr_piece_num >= 15 and self.long_move_count < 14):
+            time_limit = 1.99 
+            self.long_move_count += 1 
+        else:
+            time_limit = 1 #just in case
+
         if (curr_piece_num >= 18):
-            ab_agent = AlphaBetaAgent(4, self.learned_heuristic)
-            action = ab_agent.get_move(game_state, 1)
-            print("using alpha beta")
+            ids_agent = IterativeDeepeningAgent(1, self.learned_heuristic)
+            action = ids_agent.get_move(game_state, 1)
+            print("using IDS")
             return action
         node = MCTSNode(game_state)
         end_time = time.perf_counter() + time_limit - 0.5
@@ -812,7 +819,7 @@ class final_agent_5x5(GameAgent):
         for child in node.children:
             if child.visits > most_visits:
                 most_visits = child.visits
-                best_child = child       
+                best_child = child     
         return best_child.action
 
 
@@ -870,7 +877,7 @@ class final_agent_5x5(GameAgent):
                     break
                 action = greedy_learn.get_move(child_state, 0.0001)
                 child_state = search_problem.transition(child_state, action)
-                player_to_move = child_state.player_to_move()
+                #player_to_move = child_state.player_to_move()
                 move_counter += 1
             #print("normal greedy simulate: move count of " + str(move_counter))
             results.append(search_problem.evaluate_terminal(child_state))
