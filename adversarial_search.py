@@ -198,6 +198,7 @@ def iterative_deepening(search_problem: HeuristicAdversarialSearchProblem, game_
             depth += 1
     except TimeoutError:
         pass
+    print("IDS depth of " + str(depth))
     return best_action
 
 

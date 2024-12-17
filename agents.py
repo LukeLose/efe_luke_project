@@ -791,10 +791,11 @@ class final_agent_5x5(GameAgent):
         curr_piece_num = pieces_1 + pieces_2
 
         if (curr_piece_num <= 20 and curr_piece_num >= 15 and self.long_move_count < 14):
-            time_limit = 1.99 
-            self.long_move_count += 1 
+            #time_limit = 1.99 
+            time_per_move = max((time_limit/2) - 0.01, 0.99)
+            self.long_move_count += 1
         else:
-            time_limit = 1 #just in case
+            time_per_move = 1 #just in case
 
         if (curr_piece_num >= 18):
             ids_agent = IterativeDeepeningAgent(1, self.learned_heuristic)
@@ -802,7 +803,7 @@ class final_agent_5x5(GameAgent):
             print("using IDS")
             return action
         node = MCTSNode(game_state)
-        end_time = time.perf_counter() + time_limit - 0.5
+        end_time = time.perf_counter() + time_per_move - 0.5
         iteration = 0 
 
         while time.perf_counter() < end_time:
