@@ -15,7 +15,7 @@ In light of our discussions in class and our own research we knew that high leve
 
 ***Hybrid Model:***
 
-Another addition we made to our existing implementation of MCTS was to combine it with our other agents. Knowing that Alpha Beta and IDS would perform really well when there is a limited number of moves left on the board, we decided to use these search algorithms within our get_move method. More specifically, we edited the get_move method to use IDS to pick a move when there were already more than 17 pieces on the board. With enough time and computation power IDS should theoretically be able to infer the optimal play at any given state (assuming state space is finite). Giving the reins to IDS when there are limited options left in the game, allows us to maximize the chance of reaching that optimal move. 
+Another addition we made to our existing implementation of MCTS was to combine it with our other agents. Knowing that Alpha Beta and IDS would perform really well when there is a limited number of moves left on the board, we decided to use the IDS search algorithm within our get_move method. More specifically, we edited the get_move method to use IDS to pick a move when there were already more than 17 pieces on the board. With enough time and computation power IDS should theoretically be able to infer the optimal play at any given state (assuming state space is finite). Giving the reins to IDS when there are limited options left in the game, allows us to maximize the chance of reaching that optimal move. We also confirmed this by showing the depth that IDS gets to when it is run at 17+ pieces and it reached a depth over 10 in almost all cases.
 
 ***Additional Time Complexities:***
 
@@ -30,7 +30,8 @@ A further additional improvement we made was a cap to our simulation in our augm
 
 Given that it takes an exponential amount of time to explore multiple depths of outcomes, we wanted to simplify the first two moves as we found that securing the middle of the reduced 5x5 board was a strong strategy. Thus our bot tries to take the complete middle or a square adjascent to the complete middle in its first two moves. This gives it a strong foundation in controlling the center of our GO game while using a truly trivial amount of time to complete these moves, which we can then use the additional time later on in the mid game where it is more critical to further flesh out the a more important game state.
 
-***Closing Statement***
+***Closing Statement and Graph Analysis***
 
-With all these additions to our MCTS we created an entirely new agent that performs quite well against all other agents (find win rates against all other models in the pdf file attached in our submission). This model also has a lot more room for improvement compared to our initial implementation as it has many more hyperparameters to fine tune. While we likely weren’t able to optimize all of them in this limited time, with more time and effort our final model can perform even better! 
+With all these additions to our MCTS we created an entirely new agent that performs admirably vs random, greedy, and the top bots we could test (IDS and MCTS). The performance data can be seen in the png labeled luke-efe_superbot_performance.png. Its strong performance against IDS and equivalent performance to MCTS shows that it plays well even against opponents that may use higher level logic. This model also has a lot more room for improvement compared to our initial implementation as it has many more hyperparameters to fine tune. While we likely weren’t able to optimize all of them in this limited time, with more time and effort our final model can perform even better! Thank you so much for a great semester! -Efe and Luke (CSLOGINS: ealpay and lnguye61)
+
 

@@ -996,41 +996,37 @@ def main():
     from game_runner import run_many
     agent2 = RandomAgent()
     final_agent = final_agent_5x5()
-    run_many(final_agent, agent2, 4)
+    #run_many(final_agent, agent2, 4)
 
-    # opponent_agents = [
-    #     RandomAgent(),
-    #     GreedyAgent(),
-    #     MinimaxAgent(),
-    #     MCTSAgent(),
-    #     AlphaBetaAgent(),
-    #     IterativeDeepeningAgent(),
-    # #MinimaxAgent(),
-    # #MCTSAgent(),   
-    # # Add more agents here to test
-    # ]
+    opponent_agents = [
+        RandomAgent(),
+        GreedyAgent(),
+        MCTSAgent(),
+        IterativeDeepeningAgent(),
+    # Add more agents here to test
+    ]
 
-    # win_rates = []
-    # num_games = 10
-    # for opponent in opponent_agents:
-    #     result = run_many(final_agent, opponent, num_games=num_games)
-    #     score = result[0]
-    #     wins = (score + num_games) / 2
-    #     true_win_rate = wins / num_games
-    #     win_rates.append(true_win_rate)
+    win_rates = []
+    num_games = 8
+    for opponent in opponent_agents:
+        result = run_many(final_agent, opponent, num_games=num_games)
+        score = result[0]
+        wins = (score + num_games) / 2
+        true_win_rate = wins / num_games
+        win_rates.append(true_win_rate)
     
-    # opponent_names = [str(opponent) for opponent in opponent_agents]
+    opponent_names = [str(opponent) for opponent in opponent_agents]
 
-    # plt.figure(figsize=(10,6))
-    # plt.bar(opponent_names, win_rates, color='skyblue', edgecolor='black')
+    plt.figure(figsize=(10,6))
+    plt.bar(opponent_names, win_rates, color='skyblue', edgecolor='black')
 
-    # plt.xlabel("Opponent Agents")
-    # plt.ylabel("Win Rate (%)")
-    # plt.title("Performance of Policy Network Against Various Opponents")
-    # plt.xticks(rotation=45, ha='right')
+    plt.xlabel("Opponent Agents")
+    plt.ylabel("Win Rate (%)")
+    plt.title("Performance of Luke/Efe SUPERBOT Against Various Opponents")
+    plt.xticks(rotation=45, ha='right')
 
-    # plt.tight_layout()
-    # plt.show()
+    plt.tight_layout()
+    plt.show()
 
 
 if __name__ == "__main__":
